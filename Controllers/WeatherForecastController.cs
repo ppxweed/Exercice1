@@ -32,7 +32,7 @@ namespace TestApplication.Controllers
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
                 Summary = Summaries[rng.Next(Summaries.Length)],
-                DorsetCollege = "Students are learning API"
+                DorsetCollege = "We are pushing our changes to GitHub"
             })
             .ToArray();
         }
