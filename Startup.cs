@@ -33,7 +33,7 @@ namespace TestApplication
                 swagger.SwaggerDoc("v1", new OpenApiInfo  
                 {   
                     Version= "v1",   
-                    Title = "ICDL Ireland Shop",  
+                    Title = "Dorset College API",  
                     Description="ASP.NET Core 3.1 Web API Documentaion" 
                 });
             });  
