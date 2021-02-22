@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using TestApplication.Models;
 
@@ -21,7 +20,7 @@ namespace TestApplication.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Games> GetGames_List()
+        public ActionResult<IEnumerable<Games>> GetGames_List()
         {
             return GetGames();
         }
