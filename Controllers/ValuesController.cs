@@ -22,5 +22,19 @@ namespace TestApplication.Controllers
         {
             return await _context.Values.ToListAsync();
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Values>> GetValues_ById(int id)
+        {
+            var values = await _context.Values.FindAsync(id);
+            if(values != null)
+            {
+                return values;
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }
