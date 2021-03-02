@@ -7,5 +7,7 @@ namespace TestApplication.Data
     {
         public Context(DbContextOptions<Context> options) : base(options) {}
         public DbSet<Values> Values {get; set;}
+        public DbSet<Book> Book {get; set;}
+        public DbSet<Book_description> Book_Description {get; set;}
     }
 }
