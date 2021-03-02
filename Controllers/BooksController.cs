@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TestApplication.Data;
 using TestApplication.DTO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestApplication.Controllers
 {
@@ -19,7 +20,7 @@ namespace TestApplication.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<BookDTO>> GetBooks()
+        public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
         {
             var book = from books in _context.Book
             join book_descriptions in _context.Book_Description on books.id equals book_descriptions.book_id
@@ -32,7 +33,7 @@ namespace TestApplication.Controllers
                 Book_description = book_descriptions.book_description
             };
 
-            return Ok(book);
+            return await book.ToListAsync();
         }
 
         [HttpGet("{id}")]
