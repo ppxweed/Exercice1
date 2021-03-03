@@ -9,5 +9,9 @@ namespace TestApplication.Data
         public DbSet<Values> Values {get; set;}
         public DbSet<Book> Book {get; set;}
         public DbSet<Book_description> Book_Description {get; set;}
+         public DbSet<Students> Students {get; set;}
+        public DbSet<Students_description> Students_Description {get; set;}
+
+
     }
 }
