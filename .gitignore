@@ -1,3 +1,4 @@
+*.user
 *.suo
 *vs
 *.userosscache
@@ -6,6 +7,5 @@ obj
 .vscode
 .DS_Store
 *.db
-*appsettings.JSON
 wwwroot
 publish

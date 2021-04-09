@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using DTO;
 using Helpers;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Models;
 using Services;
+using TestApplication.Data;
 
 namespace Controllers
 {
@@ -23,20 +25,26 @@ namespace Controllers
         private IUserService _userService;
         private IMapper _mapper;
         public IConfiguration Configuration;
+        private readonly Context _context;
+        private readonly IEmailService _emailService;
 
         public UsersController(
+            Context context,
             IUserService userService,
             IMapper mapper,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IEmailService emailService)
         {
+            _context = context;
             _userService = userService;
             _mapper = mapper;
            Configuration = configuration;
+           _emailService = emailService;
         }
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]AuthenticateModel model)
+        public IActionResult Authenticate(AuthenticateModel model)
         {
             var user = _userService.Authenticate(model.Username, model.Password);
 
@@ -49,7 +57,8 @@ namespace Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.AccessLevel ?? "null")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -67,6 +76,18 @@ namespace Controllers
                 Token = tokenString
             });
         }
+
+        [Authorize(Roles = AccessLevel.Admin)]
+        [HttpPost("accesslevel/{id}")]
+        public IActionResult ChangeAccess(int id, UpdateAccessLevelDTO model)
+        {
+            // You should check if the user exists or not and then check what is their current access level. As well as you need to create an enum or make sure that user does not pass any 
+            // value except the allowed values which are: NULL, Admin, Support, Student Lead
+            _context.User.Find(id).AccessLevel = model.AccessLevel;
+            _context.SaveChanges();
+            return Ok("User Access Level has been updated!");
+        }
+
 
         [AllowAnonymous]
         [HttpPost("register")]
@@ -105,7 +126,7 @@ namespace Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UpdateModel model)
+        public IActionResult Update(int id, UpdateModel model)
         {
             //Finding who is logged in
             int logged_in_user = int.Parse(User.Identity.Name);
@@ -138,6 +159,35 @@ namespace Controllers
         {
             _userService.Delete(id);
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("forgotpassword")]
+        public IActionResult ForgotPassword(ForgotPassword model)
+        {
+            return Ok(_userService.ForgotPassword(model.Username));
+        }
+
+        [Authorize(Roles = AccessLevel.Admin)]
+        [HttpPost("email")]
+        public async Task<IActionResult> SendEmail(SendEmailDTO model)
+        {
+            var emails = new List<string>();
+            foreach (var item in model.emails)
+            {
+                emails.Add(item);
+            }
+
+            var response = await _emailService.SendEmailAsync(emails, model.Subject, model.Message);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+            {
+               return Ok("Email sent " + response.StatusCode);
+            }
+            else
+            {
+                return BadRequest("Email sending failed " + response.StatusCode);
+            }
         }
     }
 }

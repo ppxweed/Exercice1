@@ -7,9 +7,11 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TestApplication.Models;
 using DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TestApplication.Controllers
 {
+    [Authorize(Roles = "Admin, Support")]
     [ApiController]
     [Route("[controller]")]
     public class BooksController : ControllerBase
